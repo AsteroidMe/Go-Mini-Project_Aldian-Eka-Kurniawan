@@ -1,8 +1,9 @@
 package entities
 
-type Users struct {
+type User struct {
 	ID       uint
 	Name     string
 	Email    string
 	Password string
+	Token    string
 }

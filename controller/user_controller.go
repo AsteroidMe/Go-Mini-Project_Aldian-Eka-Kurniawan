@@ -10,7 +10,7 @@ import (
 )
 
 func Register(c *gin.Context) {
-	var user entities.Users
+	var user entities.User
 
 	// Bind JSON request to the user struct
 	if err := c.ShouldBindJSON(&user); err != nil {

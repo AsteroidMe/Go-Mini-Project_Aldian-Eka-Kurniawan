@@ -10,7 +10,7 @@ func MigrateDB() {
 		panic("Database connection not initialized. Please ensure ConnectDatabase is called successfully.")
 	}
 
-	err := DB.AutoMigrate(&entities.Users{}, &entities.Journals{})
+	err := DB.AutoMigrate(&entities.User{}, &entities.Journal{})
 	if err != nil {
 		fmt.Println("Failed to migrate database:", err)
 		panic("Database migration failed")
