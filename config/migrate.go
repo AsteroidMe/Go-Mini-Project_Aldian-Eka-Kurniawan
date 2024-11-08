@@ -1,11 +1,20 @@
 package config
 
 import (
-	"rest/repo/auth"
-
-	"gorm.io/gorm"
+	"fmt"
+	"mini-project/entities"
 )
 
-func MigrateDB(DB *gorm.DB) {
-	db.AutoMigrate(&auth.User{})
+func MigrateDB() {
+	if DB == nil {
+		panic("Database connection not initialized. Please ensure ConnectDatabase is called successfully.")
+	}
+
+	err := DB.AutoMigrate(&entities.Users{}, &entities.Journals{})
+	if err != nil {
+		fmt.Println("Failed to migrate database:", err)
+		panic("Database migration failed")
+	}
+
+	fmt.Println("Database migration completed successfully")
 }

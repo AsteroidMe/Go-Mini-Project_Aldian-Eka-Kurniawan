@@ -3,7 +3,13 @@ package config
 import (
 	"fmt"
 	"os"
+
+	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
+
+var DB *gorm.DB
 
 type ConfigDB struct {
 	Host     string
@@ -13,28 +19,34 @@ type ConfigDB struct {
 	Name     string
 }
 
-func ConnectDatabase() (*gorm.DB, error) {
-	configDB := ConfigDB{
-		Host:     os.Getenv("DATABASE_HOST"),
-		User:     os.Getenv("DATABASE_USER"),
-		Password: os.Getenv("DATABASE_PASSWORD"),
-		Port:     os.Getenv("DATABASE_PORT"),
-		Name:     os.Getenv("DATABASE_NAME"),
+func ConnectDatabase() {
+	// Load .env
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Error loading .env file")
 	}
 
-	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
+	// Fill config database
+	configDB := ConfigDB{
+		Host:     os.Getenv("DB_HOST"),
+		User:     os.Getenv("DB_USERNAME"),
+		Password: os.Getenv("DB_PASSWORD"),
+		Port:     os.Getenv("DB_PORT"),
+		Name:     os.Getenv("DB_NAME"),
+	}
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		configDB.User,
 		configDB.Password,
 		configDB.Host,
 		configDB.Port,
 		configDB.Name)
 
-	fmt.Println(dsn)
-
-	DB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	var err error
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed connect database")
+		fmt.Println("Failed to connect to database:", err)
+		panic("Database not connected")
 	}
 
-	return DB, nil
+	fmt.Println("Database connected successfully")
 }

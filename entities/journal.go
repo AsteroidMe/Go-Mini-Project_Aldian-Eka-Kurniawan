@@ -1,4 +1,4 @@
-package models
+package entities
 
 type Journals struct {
 	ID      uint
