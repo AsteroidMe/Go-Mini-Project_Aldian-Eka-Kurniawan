@@ -1,4 +1,4 @@
-module mini-project
+module eco-journal
 
 go 1.23.1
 

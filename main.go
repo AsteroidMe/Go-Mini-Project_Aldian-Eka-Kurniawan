@@ -1,9 +1,9 @@
 package main
 
 import (
+	"eco-journal/config"
+	"eco-journal/controller"
 	"log"
-	"mini-project/config"
-	"mini-project/controller"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,8 +1,8 @@
 package config
 
 import (
+	"eco-journal/entities"
 	"fmt"
-	"mini-project/entities"
 )
 
 func MigrateDB() {

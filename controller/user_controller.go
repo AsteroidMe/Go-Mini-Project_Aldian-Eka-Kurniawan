@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"mini-project/config"
-	"mini-project/entities"
+	"eco-journal/config"
+	"eco-journal/entities"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
