@@ -7,7 +7,7 @@ import (
 
 func MigrateDB() {
 	if DB == nil {
-		panic("Database connection not initialized. Please ensure ConnectDatabase is called successfully.")
+		panic("Database connection not initialized")
 	}
 
 	err := DB.AutoMigrate(&entities.User{}, &entities.Journal{})

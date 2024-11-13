@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -19,10 +20,11 @@ type ConfigDB struct {
 	Name     string
 }
 
-func ConnectDatabase() {
+func ConnectDB() {
 	// Load .env
 	if err := godotenv.Load(); err != nil {
-		fmt.Println("Error loading .env file")
+		log.Fatal("Error loading .env file")
+		panic("failed to load env")
 	}
 
 	// Fill config database

@@ -2,31 +2,15 @@ package main
 
 import (
 	"eco-journal/config"
-	"eco-journal/controller"
+	"eco-journal/route"
 	"log"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	config.ConnectDatabase()
+	config.ConnectDB()
 	config.MigrateDB()
-
-	r := gin.Default()
-
-	r.POST("/api/v1/register", controller.Register)
-	//r.POST("/api/v1/login", controller.Login)
-
-	// api := r.Group("/api/v1")
-	// api.Use(middleware.AuthMiddleware)
-
-	// api.GET("/packages", controllers.GetPaketsHandler)
-	// api.GET("/packages/:id", controllers.GetDetailPaketsHandler)
-	// api.POST("/packages", controllers.AddPaketsHandler)
-	// api.PUT("/packages/:id", controllers.UpdatePaketsHandler)
-	// api.DELETE("/packages/:id", controllers.DeletePaketsHandler)
-
-	// Memulai server
-	log.Println("Server started at :8000")
-	r.Run(":8000")
+	r := route.SetupRouter()
+	if err := r.Run(":8000"); err != nil {
+		log.Fatal("Server Run Failed:", err)
+	}
 }
