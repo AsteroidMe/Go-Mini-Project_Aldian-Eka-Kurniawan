@@ -25,6 +25,10 @@ func SetupRouter() *gin.Engine {
 	categoryService := service.NewCategoryService(categoryRepo)
 	categoryController := controller.NewCategoryController(categoryService)
 
+	journalRepo := repository.NewJournalRepository(config.DB)
+	journalService := service.NewJournalService(journalRepo)
+	journalController := controller.NewJournalController(journalService)
+
 	r.POST("/register", userController.Register)
 	r.POST("/login", userController.Login)
 
@@ -46,6 +50,16 @@ func SetupRouter() *gin.Engine {
 		categoryRoutes.POST("/", categoryController.Create)
 		categoryRoutes.PUT("/:id", categoryController.Update)
 		categoryRoutes.DELETE("/:id", categoryController.Delete)
+	}
+
+	journalRoutes := r.Group("/journals")
+	journalRoutes.Use(middleware.AuthMiddleware())
+	{
+		journalRoutes.GET("/", journalController.GetAll)
+		journalRoutes.GET("/:id", journalController.GetDetails)
+		journalRoutes.POST("/", journalController.Create)
+		journalRoutes.PUT("/:id", journalController.Update)
+		journalRoutes.DELETE("/:id", journalController.Delete)
 	}
 
 	return r
