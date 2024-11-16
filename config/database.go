@@ -21,13 +21,11 @@ type ConfigDB struct {
 }
 
 func ConnectDB() {
-	// Load .env
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 		panic("failed to load env")
 	}
 
-	// Fill config database
 	configDB := ConfigDB{
 		Host:     os.Getenv("DB_HOST"),
 		User:     os.Getenv("DB_USERNAME"),

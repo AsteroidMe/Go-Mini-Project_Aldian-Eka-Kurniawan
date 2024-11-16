@@ -8,8 +8,9 @@ import (
 
 func LoginHandler(c *gin.Context) {
 	var json struct {
-		Username string `json:"username"`
+		Username string
 	}
+
 	if err := c.ShouldBindJSON(&json); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
