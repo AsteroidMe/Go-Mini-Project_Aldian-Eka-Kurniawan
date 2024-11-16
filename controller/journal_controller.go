@@ -124,13 +124,41 @@ func (jc *JournalController) Delete(c *gin.Context) {
 }
 
 func (jc *JournalController) GetAll(c *gin.Context) {
-	journals, err := jc.journalService.GetAll()
+	pageStr := c.Query("page")
+	limitStr := c.Query("limit")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	journals, err := jc.journalService.GetAll(page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, journals)
+	totalItems, err := jc.journalService.Count()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	totalPages := int((totalItems + int64(limit) - 1) / int64(limit))
+
+	c.JSON(http.StatusOK, gin.H{
+		"pagination": entities.Pagination{
+			CurrentPage: page,
+			TotalPages:  totalPages,
+			TotalItems:  totalItems,
+		},
+		"data": journals,
+	})
 }
 
 func (jc *JournalController) GetDetails(c *gin.Context) {

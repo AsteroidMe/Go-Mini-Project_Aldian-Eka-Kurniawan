@@ -9,10 +9,11 @@ type JournalServiceInterface interface {
 	Create(journal *entities.Journal) (*entities.Journal, error)
 	Update(journal *entities.Journal) (*entities.Journal, error)
 	Delete(id uint) error
-	GetAll() ([]entities.Journal, error)
+	GetAll(page int, limit int) ([]entities.Journal, error)
 	FindByID(id uint) (*entities.Journal, error)
 	GetAuthorByID(id uint) (*entities.Author, error)
 	GetCategoryByID(id uint) (*entities.Category, error)
+	Count() (int64, error)
 }
 
 type journalService struct {
@@ -35,8 +36,8 @@ func (s *journalService) Delete(id uint) error {
 	return s.journalRepo.Delete(id)
 }
 
-func (s *journalService) GetAll() ([]entities.Journal, error) {
-	return s.journalRepo.FindAll()
+func (s *journalService) GetAll(page int, limit int) ([]entities.Journal, error) {
+	return s.journalRepo.FindAll(page, limit)
 }
 
 func (s *journalService) FindByID(id uint) (*entities.Journal, error) {
@@ -49,4 +50,8 @@ func (s *journalService) GetAuthorByID(id uint) (*entities.Author, error) {
 
 func (s *journalService) GetCategoryByID(id uint) (*entities.Category, error) {
 	return s.journalRepo.GetCategoryByID(id)
+}
+
+func (s *journalService) Count() (int64, error) {
+	return s.journalRepo.Count()
 }

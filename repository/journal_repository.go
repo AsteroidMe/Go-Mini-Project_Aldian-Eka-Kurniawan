@@ -10,10 +10,11 @@ type JournalRepoInterface interface {
 	Create(journal *entities.Journal) (*entities.Journal, error)
 	Update(journal *entities.Journal) (*entities.Journal, error)
 	Delete(id uint) error
-	FindAll() ([]entities.Journal, error)
+	FindAll(page int, limit int) ([]entities.Journal, error)
 	FindByID(id uint) (*entities.Journal, error)
 	GetAuthorByID(id uint) (*entities.Author, error)
 	GetCategoryByID(id uint) (*entities.Category, error)
+	Count() (int64, error)
 }
 
 type journalRepository struct {
@@ -42,9 +43,10 @@ func (r *journalRepository) Delete(id uint) error {
 	return r.db.Delete(&entities.Journal{}, id).Error
 }
 
-func (r *journalRepository) FindAll() ([]entities.Journal, error) {
+func (r *journalRepository) FindAll(page int, limit int) ([]entities.Journal, error) {
 	var journals []entities.Journal
-	if err := r.db.Preload("Author").Preload("Category").Find(&journals).Error; err != nil {
+	offset := (page - 1) * limit
+	if err := r.db.Preload("Author").Preload("Category").Limit(limit).Offset(offset).Find(&journals).Error; err != nil {
 		return nil, err
 	}
 	return journals, nil
@@ -72,4 +74,12 @@ func (r *journalRepository) GetCategoryByID(id uint) (*entities.Category, error)
 		return nil, err
 	}
 	return &category, nil
+}
+
+func (r *journalRepository) Count() (int64, error) {
+	var count int64
+	if err := r.db.Model(&entities.Journal{}).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
 }
