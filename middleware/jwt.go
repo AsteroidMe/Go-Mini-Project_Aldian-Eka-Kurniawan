@@ -9,7 +9,7 @@ import (
 var jwtSecret = []byte("123abc")
 
 type Claims struct {
-	Username string `json:"username"`
+	Username string
 	jwt.RegisteredClaims
 }
 
