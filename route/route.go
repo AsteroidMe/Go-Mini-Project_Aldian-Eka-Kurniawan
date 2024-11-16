@@ -21,6 +21,10 @@ func SetupRouter() *gin.Engine {
 	authorService := service.NewAuthorService(authorRepo)
 	authorController := controller.NewAuthorController(authorService)
 
+	categoryRepo := repository.NewCategoryRepository(config.DB)
+	categoryService := service.NewCategoryService(categoryRepo)
+	categoryController := controller.NewCategoryController(categoryService)
+
 	r.POST("/register", userController.Register)
 	r.POST("/login", userController.Login)
 
@@ -32,6 +36,16 @@ func SetupRouter() *gin.Engine {
 		authorRoutes.POST("/", authorController.Create)
 		authorRoutes.PUT("/:id", authorController.Update)
 		authorRoutes.DELETE("/:id", authorController.Delete)
+	}
+
+	categoryRoutes := r.Group("/categories")
+	categoryRoutes.Use(middleware.AuthMiddleware())
+	{
+		categoryRoutes.GET("/", categoryController.GetAll)
+		categoryRoutes.GET("/:id", categoryController.GetDetails)
+		categoryRoutes.POST("/", categoryController.Create)
+		categoryRoutes.PUT("/:id", categoryController.Update)
+		categoryRoutes.DELETE("/:id", categoryController.Delete)
 	}
 
 	return r
