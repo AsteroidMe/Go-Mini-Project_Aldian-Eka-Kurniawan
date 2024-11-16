@@ -1,11 +1,11 @@
 package entities
 
 type Meta struct {
-	Status  bool   `json:"status"`
-	Message string `json:"message"`
+	Status  bool
+	Message string
 }
 
 type Response struct {
-	Meta Meta        `json:"meta"`
-	Data interface{} `json:"data,omitempty"`
+	Meta Meta
+	Data interface{}
 }
