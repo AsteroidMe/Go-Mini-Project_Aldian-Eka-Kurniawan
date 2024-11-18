@@ -1,50 +1,22 @@
 package route
 
 import (
-	"eco-journal/config"
 	"eco-journal/controller"
 	"eco-journal/middleware"
-	"eco-journal/repository"
-	"eco-journal/service"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(
+	userController *controller.UserController,
+	authorController *controller.AuthorController,
+	categoryController *controller.CategoryController,
+	journalController *controller.JournalController,
+	chatController *controller.ChatController) *gin.Engine {
 	r := gin.Default()
-
-	userRepo := repository.NewUserRepository(config.DB)
-	userService := service.NewUserService(userRepo)
-	userController := controller.NewUserController(userService)
-
-	authorRepo := repository.NewAuthorRepository(config.DB)
-	authorService := service.NewAuthorService(authorRepo)
-	authorController := controller.NewAuthorController(authorService)
-
-	categoryRepo := repository.NewCategoryRepository(config.DB)
-	categoryService := service.NewCategoryService(categoryRepo)
-	categoryController := controller.NewCategoryController(categoryService)
-
-	journalRepo := repository.NewJournalRepository(config.DB)
-	journalService := service.NewJournalService(journalRepo)
-	journalController := controller.NewJournalController(journalService)
-
-	chatRepo := repository.NewChatRepository(config.DB)
-	chatService := service.NewChatService(chatRepo)
-	chatController := controller.NewChatController(chatService)
 
 	r.POST("/register", userController.Register)
 	r.POST("/login", userController.Login)
-
-	authorRoutes := r.Group("/authors")
-	authorRoutes.Use(middleware.AuthMiddleware())
-	{
-		authorRoutes.GET("/", authorController.GetAll)
-		authorRoutes.GET("/:id", authorController.GetDetails)
-		authorRoutes.POST("/", authorController.Create)
-		authorRoutes.PUT("/:id", authorController.Update)
-		authorRoutes.DELETE("/:id", authorController.Delete)
-	}
 
 	categoryRoutes := r.Group("/categories")
 	categoryRoutes.Use(middleware.AuthMiddleware())
@@ -54,6 +26,16 @@ func SetupRouter() *gin.Engine {
 		categoryRoutes.POST("/", categoryController.Create)
 		categoryRoutes.PUT("/:id", categoryController.Update)
 		categoryRoutes.DELETE("/:id", categoryController.Delete)
+	}
+
+	authorRoutes := r.Group("/authors")
+	authorRoutes.Use(middleware.AuthMiddleware())
+	{
+		authorRoutes.GET("/", authorController.GetAll)
+		authorRoutes.GET("/:id", authorController.GetDetails)
+		authorRoutes.POST("/", authorController.Create)
+		authorRoutes.PUT("/:id", authorController.Update)
+		authorRoutes.DELETE("/:id", authorController.Delete)
 	}
 
 	journalRoutes := r.Group("/journals")
