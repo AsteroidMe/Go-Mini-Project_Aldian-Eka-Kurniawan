@@ -29,6 +29,10 @@ func SetupRouter() *gin.Engine {
 	journalService := service.NewJournalService(journalRepo)
 	journalController := controller.NewJournalController(journalService)
 
+	chatRepo := repository.NewChatRepository(config.DB)
+	chatService := service.NewChatService(chatRepo)
+	chatController := controller.NewChatController(chatService)
+
 	r.POST("/register", userController.Register)
 	r.POST("/login", userController.Login)
 
@@ -60,6 +64,13 @@ func SetupRouter() *gin.Engine {
 		journalRoutes.POST("/", journalController.Create)
 		journalRoutes.PUT("/:id", journalController.Update)
 		journalRoutes.DELETE("/:id", journalController.Delete)
+	}
+
+	chatRoutes := r.Group("/chat")
+	chatRoutes.Use(middleware.AuthMiddleware())
+	{
+		chatRoutes.GET("", chatController.GetAllChats)
+		chatRoutes.POST("", chatController.ChatController)
 	}
 
 	return r
