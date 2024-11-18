@@ -1,48 +1,109 @@
 package controller
 
 import (
-	"eco-journal/config"
 	"eco-journal/entities"
+	"eco-journal/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
-func Register(c *gin.Context) {
+type UserController struct {
+	userService service.UserServiceInterface
+}
+
+func NewUserController(userService service.UserServiceInterface) *UserController {
+	return &UserController{userService}
+}
+
+func (uc *UserController) Register(c *gin.Context) {
 	var user entities.User
-
-	// Bind JSON request to the user struct
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, entities.BaseResponse{
-			Status:  false,
-			Message: "Invalid request payload",
+		c.JSON(http.StatusBadRequest, entities.Response{
+			Meta: entities.Meta{
+				Status:  false,
+				Message: "Failed input data: " + err.Error(),
+			},
 		})
 		return
 	}
 
-	// Hash the user's password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if user.Email == "" || user.Password == "" {
+		c.JSON(http.StatusBadRequest, entities.Response{
+			Meta: entities.Meta{
+				Status:  false,
+				Message: "Fill email and password",
+			},
+		})
+		return
+	}
+
+	createdUser, err := uc.userService.Register(&user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, entities.BaseResponse{
-			Status:  false,
-			Message: "Error hashing password",
-		})
-		return
-	}
-	user.Password = string(hashedPassword)
-
-	// Save the user to the database
-	if err := config.DB.Create(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, entities.BaseResponse{
-			Status:  false,
-			Message: "Email already registered",
+		c.JSON(http.StatusInternalServerError, entities.Response{
+			Meta: entities.Meta{
+				Status:  false,
+				Message: "Register failed: " + err.Error(),
+			},
 		})
 		return
 	}
 
-	c.JSON(http.StatusCreated, entities.BaseResponse{
-		Status:  true,
-		Message: "User registered successfully",
+	c.JSON(http.StatusCreated, entities.Response{
+		Meta: entities.Meta{
+			Status:  true,
+			Message: "Register success",
+		},
+		Data: createdUser,
+	})
+}
+
+func (uc *UserController) Login(c *gin.Context) {
+	var user entities.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, entities.Response{
+			Meta: entities.Meta{
+				Status:  false,
+				Message: "Failed input data: " + err.Error(),
+			},
+		})
+		return
+	}
+
+	if user.Email == "" || user.Password == "" {
+		c.JSON(http.StatusBadRequest, entities.Response{
+			Meta: entities.Meta{
+				Status:  false,
+				Message: "Fill email and password",
+			},
+		})
+		return
+	}
+
+	token, err := uc.userService.Login(user.Email, user.Password)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, entities.Response{
+			Meta: entities.Meta{
+				Status:  false,
+				Message: "Invalid credentials: " + err.Error(),
+			},
+		})
+		return
+	}
+
+	cookie := &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+	}
+	http.SetCookie(c.Writer, cookie)
+
+	c.JSON(http.StatusOK, entities.Response{
+		Meta: entities.Meta{
+			Status:  true,
+			Message: "Login success",
+		},
+		Data: map[string]string{"token": token},
 	})
 }

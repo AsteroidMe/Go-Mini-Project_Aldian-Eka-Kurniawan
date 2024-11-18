@@ -2,8 +2,7 @@ package entities
 
 type User struct {
 	ID       uint
-	Name     string
+	Username string
 	Email    string
 	Password string
-	Token    string
 }

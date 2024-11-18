@@ -3,30 +3,38 @@ package main
 import (
 	"eco-journal/config"
 	"eco-journal/controller"
+	"eco-journal/repository"
+	"eco-journal/route"
+	"eco-journal/service"
 	"log"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	config.ConnectDatabase()
+	config.ConnectDB()
 	config.MigrateDB()
 
-	r := gin.Default()
+	userRepo := repository.NewUserRepository(config.DB)
+	userService := service.NewUserService(userRepo)
+	userController := controller.NewUserController(userService)
 
-	r.POST("/api/v1/register", controller.Register)
-	//r.POST("/api/v1/login", controller.Login)
+	authorRepo := repository.NewAuthorRepository(config.DB)
+	authorService := service.NewAuthorService(authorRepo)
+	authorController := controller.NewAuthorController(authorService)
 
-	// api := r.Group("/api/v1")
-	// api.Use(middleware.AuthMiddleware)
+	categoryRepo := repository.NewCategoryRepository(config.DB)
+	categoryService := service.NewCategoryService(categoryRepo)
+	categoryController := controller.NewCategoryController(categoryService)
 
-	// api.GET("/packages", controllers.GetPaketsHandler)
-	// api.GET("/packages/:id", controllers.GetDetailPaketsHandler)
-	// api.POST("/packages", controllers.AddPaketsHandler)
-	// api.PUT("/packages/:id", controllers.UpdatePaketsHandler)
-	// api.DELETE("/packages/:id", controllers.DeletePaketsHandler)
+	journalRepo := repository.NewJournalRepository(config.DB)
+	journalService := service.NewJournalService(journalRepo)
+	journalController := controller.NewJournalController(journalService)
 
-	// Memulai server
-	log.Println("Server started at :8000")
-	r.Run(":8000")
+	chatRepo := repository.NewChatRepository(config.DB)
+	chatService := service.NewChatService(chatRepo)
+	chatController := controller.NewChatController(chatService)
+
+	r := route.SetupRouter(userController, authorController, categoryController, journalController, chatController)
+	if err := r.Run(":8000"); err != nil {
+		log.Fatal("Server Run Failed:", err)
+	}
 }
