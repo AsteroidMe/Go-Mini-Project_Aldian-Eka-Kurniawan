@@ -110,7 +110,7 @@ func (jc *JournalController) Delete(c *gin.Context) {
 
 	journal, err := jc.journalService.FindByID(uint(uintID))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Category not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Journal not found"})
 		return
 	}
 
